@@ -2,7 +2,6 @@ package beerio;
 
 public class Drink {
 	public int drinkId;
-
 	public String name;
 	public long size;
 	public long abv;
@@ -31,4 +30,8 @@ public class Drink {
 	public void setAbv(long abv) {
 		this.abv = abv;
 	}
+	public String toJson() {
+		return "{ \"drinkId\" : "+drinkId+" , \"\"name\" : \""+name+"\" , \"size\" : "+size+" , \"abv\" : "+abv+" }";
+	}
+
 }

@@ -67,5 +67,7 @@ public class Round {
 	public void setMap(String map) {
 		this.map = map;
 	}
-
+	public String toJson() {
+		return "{ \"roundId\" : "+roundId + " , \"playerNum\" : " + playerNum +" ,  \"player1Score\" : " + player1Score +" ,  \"player2Score\" : " + player2Score +" ,  \"player3Score\" : " + player3Score +" ,  \"player4Score\" : " + player4Score +" ,  \"player5Score\" : " + player5Score +" ,  \"player6Score\" : " + player6Score +" ,  \"map\" : \"" + map +"\" }";
+	}
 }

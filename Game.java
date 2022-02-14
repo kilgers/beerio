@@ -120,6 +120,16 @@ public class Game {
 	public void setRound4(Round round4) {
 		this.round4 = round4;
 	}
+	public String toJson() {
+		return "{ \"numPlayers\" : " + numPlayers + " , \"player1\" : " + player1.getPlayerId() + " , \"player2\" : " +
+				player2.getPlayerId() + " , \"player3\" : " + player3.getPlayerId() + " , \"player4\" : " + player4.getPlayerId() +
+				" , \"player5\" : " + player5.getPlayerId() + " , \"player6\" : " + player6.getPlayerId() + " , \"player1Drink\" : "
+				+ player1Drink.getDrinkId() + " , \"player2Drink\" : "+ player2Drink.getDrinkId() + " , \"player3Drink\" : " +
+				player3Drink.getDrinkId() + " , \"player4Drink\" : "+ player4Drink.getDrinkId() + " , \"player5Drink\" : "+
+				player5Drink.getDrinkId() + " , \"player6Drink\" : "+ player6Drink.getDrinkId() + " , \"round1\" : "
+				+ round1.getRoundId() + " , \"round2\" : " + round2.getRoundId() + " , \"round3\" : " + round3.getRoundId() +
+				 " , \"round4\" : " + round4.getRoundId() + " }";
+	}
 	@Override
 	public String toString() {
 		return "Game [numPlayers=" + numPlayers + ", player1=" + player1 + ", player2=" + player2 + ", player3="
