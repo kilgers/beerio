@@ -16,9 +16,10 @@ import java.sql.ResultSet;
 public class Beerio {
 
     public static void main( String[] args ) throws Exception {
-    	
+    	//initialize sql query and player list array
     	String SQL_QUERY = "SELECT * FROM beerio.users;";
     	List<Player> players = null;
+    	//get db connection and populate player list array
     	try(Connection con = DataSource.getConnection();
     	        PreparedStatement pst = con.prepareStatement( SQL_QUERY );
     	        ResultSet rs = pst.executeQuery();) {
@@ -31,7 +32,7 @@ public class Beerio {
                 player.setWeight( rs.getInt( "Weight" ) );
                 player.setGender( rs.getString( "Gender" ).toUpperCase() );
                 players.add( player);//player.getPlayerId(),
-                
+                //check to make sure list is populated and that toJason function works
                 BufferedWriter writer = new BufferedWriter(new FileWriter("testlog.txt", true));
         		writer.append(System.lineSeparator());
         		writer.append(player.toString());
@@ -40,9 +41,9 @@ public class Beerio {
         		writer.append(System.lineSeparator());
         		writer.close();
             }
-
     	}
     	
+    	//open socket
         try (ServerSocket serverSocket = new ServerSocket(80)) {
             while (true) {
                 try (Socket client = serverSocket.accept()) {
@@ -59,10 +60,12 @@ public class Beerio {
             }
         }
     }
-
+    
+    //handle incoming requests
     private static void handleClient(Socket client) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
+        //make request into string. this only parses until the first blank line
         StringBuilder requestBuilder = new StringBuilder();
         String line;
         while (!(line = br.readLine()).isBlank()) {
@@ -72,7 +75,8 @@ public class Beerio {
         	writer.close();
             requestBuilder.append(line + "\r\n");
         }
-
+        
+        //split string and parse into request info
         String request = requestBuilder.toString();
         String[] requestsLines = request.split("\r\n");
         String[] requestLine = requestsLines[0].split(" ");
@@ -86,10 +90,10 @@ public class Beerio {
             String header = requestsLines[h];
             headers.add(header);
         }
+        
+        //rest of request contains post info. parse that here
         if(method.equals("POST")) {
-//        	String[] parameters = new String[headers.size()];
         	String parameters;
-//        	br.readLine();
         	parameters = br.readLine();
         	String[] temp = parameters.split("&");
         	String[][] params = new String[temp.length][2];
@@ -104,19 +108,11 @@ public class Beerio {
             	writer.append(System.lineSeparator());
             	writer.close();
         	}
- //       	String parameters = (headers.get(headers.size()-1)).toString();
- //       	BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt", true));
- //       	writer.append(parameters.toString());
-//        	for(int i =0; i< parameters.length; i++) {
-//        	writer.append(System.lineSeparator());
-  //      	writer.append(parameters);
-        	//        	writer.append(parameters.toString());
-    //    	writer.close();
-        	//last entry in header array will be parameters. Must.Parse.Them.
+
         }
 
-        String accessLog = String.format("Client %s, method %s, path %s, version %s, host %s, headers %s",
-                client.toString(), method, path, version, host, headers.toString());
+//        String accessLog = String.format("Client %s, method %s, path %s, version %s, host %s, headers %s",
+//                client.toString(), method, path, version, host, headers.toString());
         //write log to file
 //        BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt", true));
 //        writer.append(System.lineSeparator());
