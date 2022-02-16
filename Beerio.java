@@ -50,9 +50,12 @@ public class Beerio {
                     handleClient(client);
                 }
                 catch(Exception e) {
+                	StringWriter sw = new StringWriter();
+                	PrintWriter pw = new PrintWriter(sw);
+                	e.printStackTrace(pw);
                     BufferedWriter writer = new BufferedWriter(new FileWriter("errorlog.txt", true));
                 	writer.append(System.lineSeparator());
-                	writer.append(e.getStackTrace().toString());
+                	writer.append(sw.toString());
                 	writer.append(System.lineSeparator());
                 	writer.close();
                 	continue;
@@ -69,10 +72,6 @@ public class Beerio {
         StringBuilder requestBuilder = new StringBuilder();
         String line;
         while (!(line = br.readLine()).isBlank()) {
-           	BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt", true));
-        	writer.append(System.lineSeparator());
-        	writer.append(line.toString());
-        	writer.close();
             requestBuilder.append(line + "\r\n");
         }
         
@@ -97,10 +96,12 @@ public class Beerio {
         	parameters = br.readLine();
         	String[] temp = parameters.split("&");
         	String[][] params = new String[temp.length][2];
+//    		writer.append(String.valueOf(temp.length));
+//    		writer.append(System.lineSeparator());
         	for(int i=0; i<temp.length; i++) {
+        		BufferedWriter writer = new BufferedWriter(new FileWriter("postlog.txt", true));
         		params[i][0] = temp[i].substring(0,temp[i].indexOf("="));
         		params[i][1] = temp[i].substring(temp[i].indexOf("=")+1);
-        		BufferedWriter writer = new BufferedWriter(new FileWriter("postlog.txt", true));
             	writer.append(System.lineSeparator());
         		writer.append(params[i][0]);
             	writer.append(System.lineSeparator());
@@ -108,26 +109,26 @@ public class Beerio {
             	writer.append(System.lineSeparator());
             	writer.close();
         	}
-
         }
 
-//        String accessLog = String.format("Client %s, method %s, path %s, version %s, host %s, headers %s",
-//                client.toString(), method, path, version, host, headers.toString());
+        String accessLog = String.format("Client %s, method %s, path %s, version %s, host %s, headers %s",
+                client.toString(), method, path, version, host, headers.toString());
         //write log to file
-//        BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt", true));
-//        writer.append(System.lineSeparator());
-//        writer.append(accessLog);
-//        writer.append(System.lineSeparator());
-//        writer.append(getFilePath(path).toString());
-//        writer.append(System.lineSeparator());
-//        writer.append(method);
-//        writer.append(System.lineSeparator());
-//        writer.close();
-//        System.out.println(accessLog);
+        BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt", true));
+        writer.append(System.lineSeparator());
+        writer.append(accessLog);
+        writer.append(System.lineSeparator());
+        writer.append(getFilePath(path).toString());
+        writer.append(System.lineSeparator());
+        writer.append(method);
+        writer.append(System.lineSeparator());
+        writer.close();
+        System.out.println(accessLog);
 
 
         Path filePath = getFilePath(path);
         if (method.equals("GET")) {	
+        	System.out.println("doGet");
         	if (Files.exists(filePath)) {
         		// file exist
         		String contentType = guessContentType(filePath);
@@ -138,26 +139,20 @@ public class Beerio {
         		sendResponse(client, "404 Not Found", "text/html", notFoundContent);
         	}
         } else if(method.equals("POST")){
-        	sendPost(client, "200 OK", "text/html");
-        	//direct to functions here with case statement
+        	System.out.println("doPost");
+    		BufferedWriter postwriter = new BufferedWriter(new FileWriter("postlog.txt", true));
+        	writer.append("job started");
+        	byte[] postContent = "<h1>POST Failed Successfully</h1>".getBytes();
+        	sendResponse(client, "200 OK", "text/html", postContent);
+        	postwriter.append("jobs done");
+        	postwriter.close();
+//        	//direct to functions here with case statement
         }
-
     }
 
-    private static void sendPost (Socket client, String status, String contentType) throws IOException{
-    	OutputStream clientOutput = client.getOutputStream();
-        clientOutput.write(("HTTP/1.1 \r\n" + status).getBytes());
-        clientOutput.write(("ContentType: " + contentType + "\r\n").getBytes());
-        clientOutput.write("\r\n".getBytes());
-        //clientOutput.write(content);
-	    clientOutput.write("POST failed succesfully".getBytes());
-        clientOutput.write("\r\n\r\n".getBytes());
-        clientOutput.flush();
-        client.close();
-    }
     private static void sendResponse(Socket client, String status, String contentType, byte[] content) throws IOException {
         OutputStream clientOutput = client.getOutputStream();
-        clientOutput.write(("HTTP/1.1 \r\n" + status).getBytes());
+        clientOutput.write(("HTTP/1.1 " + status+"/r/n").getBytes());
         clientOutput.write(("ContentType: " + contentType + "\r\n").getBytes());
         clientOutput.write("\r\n".getBytes());
         clientOutput.write(content);
